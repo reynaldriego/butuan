@@ -1,5 +1,6 @@
 <script setup>
   import AppLayout from '@/components/layout/AppLayout.vue';
+  import LoginForm from '@/components/auth/RegisterForm.vue';
   import { useDisplay } from 'vuetify'
 
   const { mobile } = useDisplay()
@@ -24,57 +25,13 @@
   </v-card-title>
 
   <v-card-text class="bg-surface-light pt-6 pb-6 px-6">
-    <v-form fast-fail @submit.prevent>
-
-      <v-text-field
-        v-model="firstname"
-        variant="outlined"
-        label="First Name"
-        class="mb-4"
-        color="indigo-darken-2"
-        density="comfortable"
-      ></v-text-field>
-      
-      <v-text-field
-        v-model="lastname"
-        variant="outlined"
-        label="Last Name"
-        class="mb-4"
-        color="indigo-darken-2"
-        density="comfortable"
-      ></v-text-field>
-
-      <v-text-field
-        v-model="email"
-        variant="outlined"
-        label="Email"
-        class="mb-4"
-        color="indigo-darken-2"
-        density="comfortable"
-      ></v-text-field>
-
-      <v-text-field
-        v-model="password"
-        variant="outlined"
-        label="Password"
-        type="password"
-        class="mb-4"
-        density="comfortable"
-      ></v-text-field>
-      
-      <v-text-field
-        v-model="passwordconfirmation"
-        variant="outlined"
-        label="Password Confirmation"
-        type="password"
-        class="mb-4"
-        density="comfortable"
-      ></v-text-field>
-
-      <v-btn class="mt-2" color="indigo-darken-2" type="submit" block size="large"  prepend-icon="mdi-account-plus">Register</v-btn>
-    </v-form>
 
     <v-divider class="my-5"></v-divider>
+
+       <RegisterForm></RegisterForm>
+    
+    <v-divider class="my-5"></v-divider>
+
 
     <h5 class="text-center">Already have account? 
         <RouterLink class="text-primary" to="/">Click here to Login</RouterLink>
