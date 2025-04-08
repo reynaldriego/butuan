@@ -1,6 +1,6 @@
 <template>
 
-<v-form fast-fail @submit.prevent>
+<!-- <v-form fast-fail @submit.prevent>
 
 <v-text-field
   v-model="firstname"
@@ -48,5 +48,5 @@
 ></v-text-field>
 
 <v-btn class="mt-2" color="indigo-darken-2" type="submit" block size="large"  prepend-icon="mdi-account-plus">Register</v-btn>
-</v-form>
+</v-form> -->
 </template>

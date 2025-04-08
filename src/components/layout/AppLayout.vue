@@ -36,7 +36,7 @@
         </v-container>
       </v-main>
 
-      <v-footer app class="text-center d-flex flex-column ga-2 py-4" :color="theme === 'light' ? 'grey-darken-4' : 'blue-grey-darken-4' ">
+      <v-footer app class="text-center d-flex flex-column ga-2 py-4 font-weight-bold" :color="theme === 'light' ? 'grey-darken-4' : 'blue-grey-darken-4' ">
         <div class="d-flex ga-3">
           <v-btn
             v-for="icon in icons"
