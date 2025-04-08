@@ -36,29 +36,35 @@
         </v-container>
       </v-main>
 
-      <v-footer app class="text-center d-flex flex-column ga-2 py-4 font-weight-bold" :color="theme === 'light' ? 'grey-darken-4' : 'blue-grey-darken-4' ">
-        <div class="d-flex ga-3">
-          <v-btn
-            v-for="icon in icons"
-            :key="icon"
-            :icon="icon"
-            density="comfortable"
-            variant="text"
-          ></v-btn>
-        </div>
+      <v-footer 
+  app 
+  class="text-center d-flex flex-column ga-1 py-2" 
+  :color="theme === 'light' ? 'grey-darken-4' : 'blue-grey-darken-4'"
+>
+  <div class="d-flex ga-2">
+    <v-btn
+      v-for="icon in icons"
+      :key="icon"
+      :icon="icon"
+      density="compact"
+      variant="text"
+      size="small"
+    ></v-btn>
+  </div>
 
-        <v-divider class="my-2" thickness="3" width="50"></v-divider>
+  <v-divider class="my-1" thickness="2" width="40"></v-divider>
 
-        <div class="text-white font-weight-regular opacity-60">
-          Your gateway to seamless hotel stays and unforgettable travel adventures. Whether you're planning a luxury getaway or a budget-friendly escape, Explora D'Explorer connects you to the finest accommodations and hidden gems around the world. Book with confidence and explore with ease.
-        </div>
+  <div class="text-white font-weight-regular opacity-60 text-caption mx-4">
+    Your gateway to seamless hotel stays and unforgettable travel adventures...
+  </div>
 
-        <v-divider></v-divider>
+  <v-divider class="mt-1"></v-divider>
 
-        <div>
-          <strong>Explora D' Explorer</strong>
-        </div>
-      </v-footer>
-    </v-app>
+  <div class="text-caption py-1">
+    <strong>Explora D' Explorer</strong>
+  </div>
+</v-footer>
+
+</v-app>
   </v-responsive>
-</template>
+  </template>
