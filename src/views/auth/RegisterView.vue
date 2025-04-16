@@ -1,150 +1,224 @@
 <script setup>
-import { ref } from 'vue';
-import AppLayout from '@/components/layout/AppLayout.vue';
+import { ref } from 'vue'
+import AppLayout from '@/components/layout/AppLayout.vue'
 import { useDisplay } from 'vuetify'
+import { supabase } from '@/utils/supabase.js'
+import AlertNotification from '@/components/common/AlertNotification.vue'
 
 const { mobile } = useDisplay()
 
-// Form fields (unchanged)
-const firstname = ref('');
-const lastname = ref('');
-const email = ref('');
-const password = ref('');
-const passwordconfirmation = ref('');
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
+// Add this single line with your other refs
+const refVForm = ref(null)
 
-// Added this new ref to track submission
-const formSubmitted = ref(false);
+// Unified form data structure (your original code remains unchanged)
+const formData = ref({
+  firstname: '',
+  lastname: '',
+  email: '',
+  password: '',
+  passwordconfirmation: '',
+  showPassword: false,
+  showConfirmPassword: false,
+})
 
-// Validation rules (unchanged)
+const formAction = ref({
+  formProcess: false,
+  formErrorMessage: '',
+  formSuccessMessage: '',
+  formStatus: null,
+})
+
+// Validation rules (your original code remains unchanged)
 const rules = {
-  required: value => !!value || 'Field is required',
-  min: v => !v || v.length >= 8 || 'Min 8 characters',
-  email: v => !v || /.+@.+\..+/.test(v) || 'E-mail must be valid',
-  passwordMatch: () => !passwordconfirmation.value || 
-                     (password.value === passwordconfirmation.value) || 
-                     'Passwords must match',
-};
+  required: (value) => !!value || 'Field is required',
+  min: (v) => !v || v.length >= 8 || 'Min 8 characters',
+  email: (v) => !v || /.+@.+\..+/.test(v) || 'E-mail must be valid',
+  passwordMatch: () =>
+    formData.value.password === formData.value.passwordconfirmation || 'Passwords must match',
+}
 
-// Track if fields have been touched (unchanged)
 const touched = ref({
   firstname: false,
   lastname: false,
   email: false,
   password: false,
-  passwordconfirmation: false
-});
+  passwordconfirmation: false,
+})
 
-// Modified blur handler to also check if form was submitted
+const formSubmitted = ref(false)
+
 const onBlur = (field) => {
-  touched.value[field] = true;
-};
+  touched.value[field] = true
+}
 
-// New function to handle submission
-const handleSubmit = () => {
-  formSubmitted.value = true;
-  // Your actual submission logic would go here
-};
-
-// New computed error messages that respond to typing after submission
 const getErrorMessages = (field, value, additionalRules = []) => {
-  const activeRules = [rules.required, ...additionalRules];
-  const shouldValidate = touched.value[field] || formSubmitted.value;
-  
-  return shouldValidate 
-    ? activeRules.map(rule => rule(value)).filter(msg => typeof msg === 'string')
-    : [];
-};
+  const activeRules = [rules.required, ...additionalRules]
+  const shouldValidate = touched.value[field] || formSubmitted.value
+
+  return shouldValidate
+    ? activeRules.map((rule) => rule(value)).filter((msg) => typeof msg === 'string')
+    : []
+}
+
+const handleSubmit = async () => {
+  formSubmitted.value = true
+  formAction.value.formProcess = true
+  formAction.value.formErrorMessage = ''
+  formAction.value.formSuccessMessage = ''
+
+  // Validate all fields before submission (your original code remains unchanged)
+  if (
+    !formData.value.firstname ||
+    !formData.value.lastname ||
+    !formData.value.email ||
+    !formData.value.password ||
+    formData.value.password !== formData.value.passwordconfirmation
+  ) {
+    formAction.value.formErrorMessage = 'Please fill all fields correctly'
+    formAction.value.formProcess = false
+    return
+  }
+
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.value.email,
+      password: formData.value.password,
+      options: {
+        data: {
+          first_name: formData.value.firstname,
+          last_name: formData.value.lastname,
+        },
+      },
+    })
+
+    if (error) throw error
+
+    console.log('Registration success:', data)
+    formAction.value.formSuccessMessage =
+      'Registration successful! Please check your email to verify your account.'
+    
+    // Add these reset lines only (new code):
+    refVForm.value?.reset()
+    formData.value = {
+      firstname: '',
+      lastname: '',
+      email: '',
+      password: '',
+      passwordconfirmation: '',
+      showPassword: false,
+      showConfirmPassword: false,
+    }
+    Object.keys(touched.value).forEach(key => {
+      touched.value[key] = false
+    })
+    formSubmitted.value = false
+    
+  } catch (error) {
+    console.error('Registration error:', error)
+    formAction.value.formErrorMessage = error.message || 'Registration failed'
+    formAction.value.formStatus = error.status
+  } finally {
+    formAction.value.formProcess = false
+  }
+}
 </script>
 
 <template>
   <AppLayout>
     <template #content>
+      <AlertNotification
+        :form-success-message="formAction.formSuccessMessage"
+        :form-error-message="formAction.formErrorMessage"
+      ></AlertNotification>
+
       <v-row justify="center">
         <v-col cols="12" md="6" class="d-flex justify-center">
           <v-card class="mx-auto" width="450" elevation="24">
-            <!-- All your original template content remains exactly the same until the form -->
             <v-card-text class="bg-surface-light pt-6 pb-6 px-6">
-              <v-form fast-fail @submit.prevent="handleSubmit">
-                <!-- Updated fields with new error handling -->
+              <!-- Add ref to existing v-form (only change in template) -->
+              <v-form ref="refVForm" fast-fail @submit.prevent="handleSubmit">
                 <v-text-field
-                  v-model="firstname"
+                  v-model="formData.firstname"
                   variant="outlined"
                   label="First Name"
                   class="mb-4"
                   color="indigo-darken-2"
                   density="comfortable"
-                  :error-messages="getErrorMessages('firstname', firstname)"
+                  :error-messages="getErrorMessages('firstname', formData.firstname)"
                   @blur="onBlur('firstname')"
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="lastname"
+                  v-model="formData.lastname"
                   variant="outlined"
                   label="Last Name"
                   class="mb-4"
                   color="indigo-darken-2"
                   density="comfortable"
-                  :error-messages="getErrorMessages('lastname', lastname)"
+                  :error-messages="getErrorMessages('lastname', formData.lastname)"
                   @blur="onBlur('lastname')"
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="email"
+                  v-model="formData.email"
                   variant="outlined"
                   label="Email"
                   class="mb-4"
                   color="indigo-darken-2"
                   density="comfortable"
-                  :error-messages="getErrorMessages('email', email, [rules.email])"
+                  :error-messages="getErrorMessages('email', formData.email, [rules.email])"
                   @blur="onBlur('email')"
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="password"
+                  v-model="formData.password"
                   variant="outlined"
                   label="Password"
-                  :type="showPassword ? 'text' : 'password'"
-                  :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="formData.showPassword ? 'text' : 'password'"
+                  :append-inner-icon="formData.showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                   class="mb-4"
                   density="comfortable"
-                  :error-messages="getErrorMessages('password', password, [rules.min])"
+                  :error-messages="getErrorMessages('password', formData.password, [rules.min])"
                   hint="At least 8 characters"
                   counter
-                  @click:append-inner="showPassword = !showPassword"
+                  @click:append-inner="formData.showPassword = !formData.showPassword"
                   @blur="onBlur('password')"
                 ></v-text-field>
 
                 <v-text-field
-                  v-model="passwordconfirmation"
+                  v-model="formData.passwordconfirmation"
                   variant="outlined"
                   label="Password Confirmation"
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                  :type="formData.showConfirmPassword ? 'text' : 'password'"
+                  :append-inner-icon="formData.showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
                   class="mb-4"
                   density="comfortable"
-                  :error-messages="getErrorMessages('passwordconfirmation', passwordconfirmation, [rules.passwordMatch])"
-                  @click:append-inner="showConfirmPassword = !showConfirmPassword"
+                  :error-messages="
+                    getErrorMessages('passwordconfirmation', formData.passwordconfirmation, [
+                      rules.passwordMatch,
+                    ])
+                  "
+                  @click:append-inner="formData.showConfirmPassword = !formData.showConfirmPassword"
                   @blur="onBlur('passwordconfirmation')"
                 ></v-text-field>
 
-                <!-- Submit button remains unchanged -->
-                <v-btn 
-                  class="mt-2" 
-                  color="indigo-darken-2" 
-                  type="submit" 
-                  block 
-                  size="large"  
+                <v-btn
+                  class="mt-2"
+                  color="indigo-darken-2"
+                  type="submit"
+                  block
+                  size="large"
                   prepend-icon="mdi-account-plus"
+                  :disabled="formAction.formProcess"
+                  :loading="formAction.formProcess"
                 >
                   Register
                 </v-btn>
               </v-form>
 
-              <!-- Rest of your template remains completely unchanged -->
               <v-divider class="my-5"></v-divider>
-              <h5 class="text-center">Already have account? 
+              <h5 class="text-center">
+                Already have account?
                 <RouterLink class="text-primary" to="/">Click here to Login</RouterLink>
               </h5>
             </v-card-text>
