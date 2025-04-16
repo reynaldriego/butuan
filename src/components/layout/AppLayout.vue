@@ -50,9 +50,9 @@ const icons = [
 
           <!-- Additional Content -->
           <div class="text-body-1 mb-8 mt-6" style="line-height: 1.7">
-  Where extraordinary stays meet unforgettable journeys.<br>
-  We uncover the places that turn trips into stories.
-</div>
+            Where extraordinary stays meet unforgettable journeys.<br>
+            We uncover the places that turn trips into stories.
+          </div>
 
           <div class="text-caption">
             Explora d' Explorer © {{ new Date().getFullYear() }}
